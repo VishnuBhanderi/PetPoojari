@@ -15,8 +15,8 @@ const ProductListItem = ({ product }: ProductListItemProps) => {
         <Link href={`/(tabs)/menu/${product.id}`} asChild>
             <Pressable style={styles.container}>
                 <Image source={{ uri: product.image || defaultPizzaImage }} style={styles.image} resizeMode='contain' />
-                <Text style={styles.title}> Pizza Peperoni</Text>
-                <Text style={styles.price}>$12.99</Text>
+                <Text style={styles.title}> {product.name}</Text>
+                <Text style={styles.price}>${product.price}</Text>
 
             </Pressable>
         </Link>
