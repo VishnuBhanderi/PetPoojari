@@ -21,32 +21,23 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].background,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? 'light'].tint,
+        },
       }}>
-        <Tabs.Screen name='index' options={{href:null}}/>
+      <Tabs.Screen name='index' options={{ href: null }} />
       <Tabs.Screen
         name="menu"
         options={{
           title: 'Menu',
-          headerShown:false,
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon name="cutlery" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+
         }}
       />
       <Tabs.Screen
