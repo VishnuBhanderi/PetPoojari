@@ -7,6 +7,6 @@ import { Pressable, useColorScheme } from "react-native";
 export default function OrderStack() {
   const colorScheme = useColorScheme();
   return <Stack>
-
+    <Stack.Screen name="list" options={{ headerShown:false }} />
   </Stack>
 }
