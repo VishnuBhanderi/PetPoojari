@@ -4,12 +4,9 @@ import { Link, Stack } from "expo-router";
 import { Pressable, useColorScheme } from "react-native";
 
 
-export default function AuthStack() {
+export default function OrderStack() {
   const colorScheme = useColorScheme();
   return <Stack>
-    <Stack.Screen name="SignIn" options={{
-      title: 'Sign In',
-    }} />
 
   </Stack>
 }

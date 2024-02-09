@@ -16,16 +16,16 @@ export default function SignUp() {
         
         <Stack.Screen options={{ title: 'Sign Up' }} />
       <Text style={styles.lable}>Email</Text>
-      <TextInput value={email} onChangeText={setEmail} placeholder='Email' style={styles.input} />
+      <TextInput value={email} onChangeText={setEmail} placeholder='jon@gmail.com' style={styles.input} />
 
 
       <Text style={styles.lable}>Password</Text>
       <TextInput
-        value={password}
-        onChangeText={setPassword}
-        placeholder='9.99'
-        style={styles.input}
-        keyboardType='numeric'
+         value={password}
+         onChangeText={setPassword}
+         placeholder='Enter Your Password'
+         style={styles.input}
+         secureTextEntry={true}
       />
       <Button text="Create Account" onPress={() => { }} style={styles.button} />
       <Link href={`/(auth)/SignIn`} asChild>
