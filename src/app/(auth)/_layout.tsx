@@ -1,15 +1,20 @@
 import Colors from "@/constants/Colors";
+import { useAuth } from "@/providers/AuthProvider";
 import { FontAwesome } from "@expo/vector-icons";
-import { Link, Stack } from "expo-router";
+import { Link, Redirect, Stack } from "expo-router";
 import { Pressable, useColorScheme } from "react-native";
 
 
 export default function AuthStack() {
   const colorScheme = useColorScheme();
-  return <Stack>
-    <Stack.Screen name="SignIn" options={{
-      title: 'Sign In',
-    }} />
+  const { session } = useAuth();
 
-  </Stack>
+  if (session) {
+    console.warn('session exists');
+    return <Redirect href={'/'} />
+    
+  }
+
+  return <Stack />;
+
 }

@@ -1,33 +1,44 @@
-import { StyleSheet, Image, FlatList, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Image, FlatList, Pressable, TextInput, Alert } from 'react-native';
 
 import { Text, View } from '@components/Themed';
 import Button from '@/components/Button';
 import { Link, Stack } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 
 export default function SignUp() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function SignUpWithEmail() {
+    setLoading(true)
+    const { error } = await supabase.auth.signUp({ email, password })
+
+    if (error) Alert.alert('Error : ', error.message)
+    setLoading(false)
+  }
+
   return (
     <View style={styles.container}>
-        
-        <Stack.Screen options={{ title: 'Sign Up' }} />
+
+      <Stack.Screen options={{ title: 'Sign Up' }} />
       <Text style={styles.lable}>Email</Text>
       <TextInput value={email} onChangeText={setEmail} placeholder='jon@gmail.com' style={styles.input} />
 
 
       <Text style={styles.lable}>Password</Text>
       <TextInput
-         value={password}
-         onChangeText={setPassword}
-         placeholder='Enter Your Password'
-         style={styles.input}
-         secureTextEntry={true}
+        value={password}
+        onChangeText={setPassword}
+        placeholder='Enter Your Password'
+        style={styles.input}
+        secureTextEntry={true}
       />
-      <Button text="Create Account" onPress={() => { }} style={styles.button} />
+      <Button text={loading ? "Creating account..." : "Create Account"} disabled={loading} onPress={SignUpWithEmail} style={styles.button} />
       <Link href={`/(auth)/SignIn`} asChild>
         <Pressable>
           <Text style={styles.textButton}> Sign In </Text>
@@ -62,7 +73,7 @@ const styles = StyleSheet.create({
     color: Colors.light.tint,
     marginVertical: 10
   },
-  button:{
+  button: {
     marginTop: 20
   }
 })

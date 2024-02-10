@@ -1,16 +1,27 @@
-import { StyleSheet, Image, FlatList, Pressable, TextInput } from 'react-native';
+import { StyleSheet, Image, FlatList, Pressable, TextInput, Alert } from 'react-native';
 
 import { Text, View } from '@components/Themed';
 import Button from '@/components/Button';
 import { Link, useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 
 export default function MenuScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [loading, setLoading] = useState(false);
+
+  async function SignInWithEmail() {
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    if (error) Alert.alert('Error : ', error.message)
+    setLoading(false)
+  }
   const { role } = useLocalSearchParams();
   return (
     <View style={styles.container}>
@@ -26,9 +37,9 @@ export default function MenuScreen() {
         style={styles.input}
         secureTextEntry={true}
       />
-      
-      <Button text="SignIn" onPress={() => {}} style={styles.button} />
-  
+
+      <Button text={loading? "Signing In.. " : "Sign In"} disabled={loading} onPress={SignInWithEmail} style={styles.button} />
+
       <Link href={`/(auth)/signup`} asChild>
         <Pressable>
           <Text style={styles.textButton}> Sign Up </Text>
