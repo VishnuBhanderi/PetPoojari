@@ -6,6 +6,7 @@ import Colors from '@/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import products from '@assets/data/products';
+import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/api/products';
 
 const CreateProductScreen = () => {
 
@@ -14,20 +15,22 @@ const CreateProductScreen = () => {
     const [image, setImage] = useState<string | null>(null);
     const [error, setError] = useState('');
 
-    const { id } = useLocalSearchParams();
-    const product = products.find((p) => p.id.toString() === id);
+    const { id: idString } = useLocalSearchParams();
+    const id = parseFloat(typeof idString === 'string' ? idString : idString?.[0]);
     const isUpdating = !!id;
 
-    const preFillTheForm = () => {
-        if (isUpdating) {
-            setName(product?.name || '');
-            setPrice(product?.price.toString() || '');
-            setImage(product?.image || null);
-        }
-    }
+    const { mutate: insertProduct } = useInsertProduct();
+    const { mutate: updateProduct } = useUpdateProduct();
+    const { mutate: deleteProduct } = useDeleteProduct();
+    const { data: updatingProduct } = useProduct(id);
+
     useEffect(() => {
-        preFillTheForm();
-    }, [id])
+        if (updatingProduct) {
+            setName(updatingProduct.name);
+            setPrice(updatingProduct.price.toString());
+            setImage(updatingProduct.image);
+        }
+    }, [updatingProduct])
 
     const router = useRouter();
     const validateInput = () => {
@@ -49,15 +52,15 @@ const CreateProductScreen = () => {
             return;
         }
         setError('');
-        console.warn('Creating  Product: ', name)
-
         //Save in Database
-
-        setName('');
-        setPrice('');
-        setImage('');
-        router.back();
-
+        insertProduct({ name, price: parseFloat(price), image }, {
+            onSuccess: () => {
+                setName('');
+                setPrice('');
+                setImage('');
+                router.back();
+            }
+        });
     }
 
     const onUpdate = () => {
@@ -68,12 +71,14 @@ const CreateProductScreen = () => {
         console.warn('Updating Product: ', name)
 
         //Update in Database
-
-        setName('');
-        setPrice('');
-        setImage('');
-        router.back();
-
+        updateProduct({ id, name, price: parseFloat(price), image }, {
+            onSuccess: () => {
+                setName('');
+                setPrice('');
+                setImage('');
+                router.back();
+            }
+        });
     }
 
     const onSubmit = () => {
@@ -85,26 +90,30 @@ const CreateProductScreen = () => {
     }
 
     const onDelete = () => {
-        console.warn('Deleting Product: ', name)
         //Delete from Database
-        setName('');
-        setPrice('');
-        setImage('');
-        router.back();
+        deleteProduct(id, {
+            onSuccess: () => {
+                setName('');
+                setPrice('');
+                setImage('');
+                router.replace('/(admin)');
+            }
+        });
+
     }
 
     const confirmDelete = () => {
-      Alert.alert('Delete', 'Are you sure you want to delete this product?', [
-        {
-          text: 'No',
-          style: 'cancel',
-        },
-        {
-          text: 'Yes',
-          style: 'destructive',
-          onPress: onDelete,
-        },
-      ]);
+        Alert.alert('Delete', 'Are you sure you want to delete this product?', [
+            {
+                text: 'No',
+                style: 'cancel',
+            },
+            {
+                text: 'Yes',
+                style: 'destructive',
+                onPress: onDelete,
+            },
+        ]);
     }
     const pickImage = async () => {
         // No permissions request is necessary for launching the image library
