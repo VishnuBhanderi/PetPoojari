@@ -7,6 +7,10 @@ import * as ImagePicker from 'expo-image-picker';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import products from '@assets/data/products';
 import { useDeleteProduct, useInsertProduct, useProduct, useUpdateProduct } from '@/api/products';
+import * as FileSystem from 'expo-file-system';
+import { randomUUID } from 'expo-crypto';
+import { supabase } from '@/lib/supabase';
+import { decode } from 'base64-arraybuffer';
 
 const CreateProductScreen = () => {
 
@@ -47,13 +51,16 @@ const CreateProductScreen = () => {
         return true;
     }
 
-    const onCreate = () => {
+    const onCreate = async () => {
         if (!validateInput()) {
             return;
         }
+
         setError('');
+
+        const imagePath = await uploadImage();
         //Save in Database
-        insertProduct({ name, price: parseFloat(price), image }, {
+        insertProduct({ name, price: parseFloat(price), image: imagePath }, {
             onSuccess: () => {
                 setName('');
                 setPrice('');
@@ -63,15 +70,16 @@ const CreateProductScreen = () => {
         });
     }
 
-    const onUpdate = () => {
+    const onUpdate = async () => {
         if (!validateInput()) {
             return;
         }
         setError('');
-        console.warn('Updating Product: ', name)
+        
+        const imagePath = await uploadImage();
 
         //Update in Database
-        updateProduct({ id, name, price: parseFloat(price), image }, {
+        updateProduct({ id, name, price: parseFloat(price), image: imagePath }, {
             onSuccess: () => {
                 setName('');
                 setPrice('');
@@ -130,6 +138,26 @@ const CreateProductScreen = () => {
             setImage(result.assets[0].uri);
         }
     };
+
+    const uploadImage = async () => {
+        if (!image?.startsWith('file://')) {
+          return;
+        }
+      
+        const base64 = await FileSystem.readAsStringAsync(image, {
+          encoding: 'base64',
+        });
+        const filePath = `${randomUUID()}.png`;
+        const contentType = 'image/png';
+        const { data, error } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, decode(base64), { contentType });
+      
+        if (data) {
+          return data.path;
+        }
+      };
+
     return (
         <View style={styles.container}>
             <Stack.Screen options={{ title: isUpdating ? 'Update Dish' : 'Create Dish' }} />
